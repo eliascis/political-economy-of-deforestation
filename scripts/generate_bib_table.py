@@ -11,10 +11,11 @@ lines = [
     "|-----------|------|-------|---------|:----:|"
 ]
 for entry in bib_database.entries:
-    # Extract last names only
+    # Extract last names only, and remove braces
     raw_authors = entry.get('author', '').replace('\n', ' ')
-    parts       = [a.strip() for a in raw_authors.split(' and ')]
-    last_names  = []
+    raw_authors = raw_authors.replace('{', '').replace('}', '')
+    parts = [a.strip() for a in raw_authors.split(' and ')]
+    last_names = []
     for name in parts:
         if ',' in name:
             last = name.split(',', 1)[0].strip()
@@ -24,9 +25,16 @@ for entry in bib_database.entries:
         last_names.append(last)
     author = ', '.join(last_names)
 
-    year    = entry.get('year', '')
-    title   = entry.get('title', '').replace('\n', ' ').strip('{}')
+    # Year
+    year = entry.get('year', '').replace('{', '').replace('}', '')
+
+    # Title, stripped of braces
+    title = entry.get('title', '').replace('\n', ' ')
+    title = title.replace('{', '').replace('}', '').strip()
+
+    # Journal, stripped of braces
     journal = entry.get('journal', '').replace('\n', ' ')
+    journal = journal.replace('{', '').replace('}', '')
 
     # Determine link: prefer DOI, else URL
     doi = entry.get('doi', '').strip()
@@ -42,6 +50,7 @@ for entry in bib_database.entries:
 
     lines.append(f"| {author} | {year} | *{title}* | {journal} | {link_md} |")
 
+# Combine into one Markdown string
 table_md = "\n".join(lines)
 
 # Inject into README.md between the two <!-- BIB_TABLE --> markers
