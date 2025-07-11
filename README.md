@@ -1,6 +1,6 @@
 # Scientific paper collection on the political economy of deforestation
-Collaborative collection of publications on the political economy of deforestation
 
+[📥 Download the BibTeX file](https://raw.githubusercontent.com/<your-user>/political-economy-of-deforestation/main/data/polecon-def.bib)
 
 ## Publications
 
