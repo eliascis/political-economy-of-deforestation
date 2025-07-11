@@ -5,17 +5,17 @@ import bibtexparser
 with open('data/polecon-def.bib', encoding='utf-8') as bibfile:
     bib_database = bibtexparser.load(bibfile)
 
-# Build the Markdown table
+# Build the Markdown table with Year as second column
 lines = [
-    "| Author(s) | Title | Journal | Year |",
-    "|-----------|-------|---------|------|"
+    "| Author(s) | Year | Title | Journal |",
+    "|-----------|------|-------|---------|"
 ]
 for entry in bib_database.entries:
     author  = entry.get('author', '').replace('\n', ' ')
+    year    = entry.get('year', '')
     title   = entry.get('title', '').replace('\n', ' ').strip('{}')
     journal = entry.get('journal', '').replace('\n', ' ')
-    year    = entry.get('year', '')
-    lines.append(f"| {author} | *{title}* | {journal} | {year} |")
+    lines.append(f"| {author} | {year} | *{title}* | {journal} |")
 
 table_md = "\n".join(lines)
 
