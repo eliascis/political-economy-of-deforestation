@@ -5,16 +5,30 @@ import bibtexparser
 with open('data/polecon-def.bib', encoding='utf-8') as bibfile:
     bib_database = bibtexparser.load(bibfile)
 
-# Build the Markdown table with Year as second column
+# Build the Markdown table (Year second)
 lines = [
     "| Author(s) | Year | Title | Journal |",
     "|-----------|------|-------|---------|"
 ]
+
 for entry in bib_database.entries:
-    author  = entry.get('author', '').replace('\n', ' ')
+    # Extract last names only
+    raw = entry.get('author', '').replace('\n', ' ')
+    parts = [a.strip() for a in raw.split(' and ')]
+    last_names = []
+    for name in parts:
+        if ',' in name:
+            last = name.split(',', 1)[0].strip()
+        else:
+            tokens = name.split()
+            last = tokens[-1] if tokens else ''
+        last_names.append(last)
+    author = ', '.join(last_names)
+
     year    = entry.get('year', '')
     title   = entry.get('title', '').replace('\n', ' ').strip('{}')
     journal = entry.get('journal', '').replace('\n', ' ')
+
     lines.append(f"| {author} | {year} | *{title}* | {journal} |")
 
 table_md = "\n".join(lines)
