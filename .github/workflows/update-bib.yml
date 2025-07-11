@@ -1,15 +1,24 @@
 name: Update Bibliography Table
 
+# Grant the runner write access to repo contents (so it can push)
+permissions:
+  contents: write
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]    # or your default branch
 
 jobs:
-  build:
+  update-bib-table:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          # ensure the runner can push back with GITHUB_TOKEN
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -22,10 +31,10 @@ jobs:
       - name: Generate bibliography table
         run: python scripts/generate_bib_table.py
 
-      - name: Commit changes
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add README.md
-          git commit -m "ci: update bibliography table" || echo "No changes to commit"
+          git commit -m "ci: update bibliography table" || echo "Nothing to commit"
           git push
