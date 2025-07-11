@@ -1,40 +1,39 @@
-name: Update Bibliography Table
+#!/usr/bin/env python3
+import bibtexparser
 
-# Grant the runner write access to repo contents (so it can push)
-permissions:
-  contents: write
+# Load the bibliography
+with open('data/polecon-def.bib', encoding='utf-8') as bibfile:
+    bib_database = bibtexparser.load(bibfile)
 
-on:
-  push:
-    branches: [ main ]    # or your default branch
+# Build the Markdown table
+lines = [
+    "| Author(s) | Title | Journal | Year |",
+    "|-----------|-------|---------|------|"
+]
+for entry in bib_database.entries:
+    author  = entry.get('author', '').replace('\n', ' ')
+    title   = entry.get('title', '').replace('\n', ' ').strip('{}')
+    journal = entry.get('journal', '').replace('\n', ' ')
+    year    = entry.get('year', '')
+    lines.append(f"| {author} | *{title}* | {journal} | {year} |")
 
-jobs:
-  update-bib-table:
-    runs-on: ubuntu-latest
+table_md = "\n".join(lines)
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          # ensure the runner can push back with GITHUB_TOKEN
-          persist-credentials: true
-          fetch-depth: 0
+# Inject into README.md between the two <!-- BIB_TABLE --> markers
+with open('README.md', encoding='utf-8') as f:
+    content = f.read()
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+parts = content.split("<!-- BIB_TABLE -->")
+if len(parts) != 3:
+    raise RuntimeError("README.md must contain exactly two <!-- BIB_TABLE --> markers")
 
-      - name: Install dependencies
-        run: pip install bibtexparser
+new_readme = (
+    parts[0]
+    + "<!-- BIB_TABLE -->\n"
+    + table_md
+    + "\n<!-- BIB_TABLE -->"
+    + parts[2]
+)
 
-      - name: Generate bibliography table
-        run: python scripts/generate_bib_table.py
-
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add README.md
-          git commit -m "ci: update bibliography table" || echo "Nothing to commit"
-          git push
+with open('README.md', 'w', encoding='utf-8') as f:
+    f.write(new_readme)
