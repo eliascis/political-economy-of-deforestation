@@ -1,5 +1,6 @@
 # Scientific paper collection on the political economy of deforestation
-   
+This is primary a collection of emprical papers and review papers. Case studies and theoretical papers are not the focus in this list. 
+
 [📥 Download the BibTeX file](https://raw.githubusercontent.com/eliascis/political-economy-of-deforestation/main/data/polecon-def.bib)
 
 
